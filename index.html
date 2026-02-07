@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoSense | Secure Crypto Investments</title>
+    
+    <!-- CSS Libraries -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chart.js/3.9.1/chart.min.css">
+    
+    <style>
+        /* Base Styles */
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #7c3aed;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #0ea5e9;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: #f8fafc;
+            color: var(--dark);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Navigation */
+        .navbar {
+            background: white;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .logo i {
+            font-size: 28px;
+            color: var(--primary);
+            background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%);
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Pages */
+        .page {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Auth Pages */
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80vh;
+            padding: 40px 20px;
+        }
+
+        .auth-card {
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Dashboard */
+        .dashboard-container {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--dark);
+            color: white;
+            padding: 30px 20px;
+            position: sticky;
+            top: 80px;
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 30px;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            border-left: 5px solid var(--primary);
+        }
+
+        /* Charts */
+        .chart-container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            height: 400px;
+        }
+
+        /* 2FA Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+            }
+            
+            .auth-card {
+                padding: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <a href="#" class="logo" id="homeLogo">
+                    <i class="fas fa-chart-line"></i>
+                    <h1>CryptoSense</h1>
+                </a>
+                <div id="navButtons">
+                    <a href="#" id="loginNav" class="btn btn-outline">Login</a>
+                    <a href="#" id="signupNav" class="btn btn-primary">Sign Up</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Pages -->
+    <div id="pages">
+        <!-- Landing Page -->
+        <div id="landingPage" class="page active">
+            <div class="container">
+                <div style="padding: 80px 0; text-align: center;">
+                    <h1 style="font-size: 48px; margin-bottom: 20px; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                        Smart Crypto Investments
+                    </h1>
+                    <p style="font-size: 20px; color: var(--gray); margin-bottom: 40px;">
+                        Start your investment journey with professional crypto portfolio management
+                    </p>
+                    <button id="getStartedBtn" class="btn btn-primary" style="font-size: 18px; padding: 15px 40px;">
+                        <i class="fas fa-rocket"></i> Get Started Now
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Signup Page -->
+        <div id="signupPage" class="page">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <h2 style="text-align: center; margin-bottom: 30px;">Create Account</h2>
+                    <form id="signupForm">
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Full Name</label>
+                            <input type="text" id="signupName" class="form-control" placeholder="John Doe" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Email Address</label>
+                            <input type="email" id="signupEmail" class="form-control" placeholder="john@example.com" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Password</label>
+                            <input type="password" id="signupPassword" class="form-control" placeholder="••••••••" minlength="8" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" id="termsCheckbox" required>
+                                I agree to Terms & Privacy Policy
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
+                    </form>
+                    <p style="text-align: center; margin-top: 20px; color: var(--gray);">
+                        Already have an account? <a href="#" id="toLoginLink" style="color: var(--primary); text-decoration: none; font-weight: 600;">Sign In</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Page -->
+        <div id="loginPage" class="page">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <h2 style="text-align: center; margin-bottom: 30px;">Welcome Back</h2>
+                    <form id="loginForm">
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Email Address</label>
+                            <input type="email" id="loginEmail" class="form-control" placeholder="john@example.com" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Password</label>
+                            <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                            <a href="#" id="forgotPasswordLink" style="display: block; text-align: right; margin-top: 8px; color: var(--primary); text-decoration: none; font-size: 14px;">Forgot Password?</a>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
+                    </form>
+                    <p style="text-align: center; margin-top: 20px; color: var(--gray);">
+                        Don't have an account? <a href="#" id="toSignupLink" style="color: var(--primary); text-decoration: none; font-weight: 600;">Sign Up</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Email Verification Page -->
+        <div id="verifyEmailPage" class="page">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <h2 style="text-align: center; margin-bottom: 20px;">Verify Your Email</h2>
+                    <p style="text-align: center; color: var(--gray); margin-bottom: 30px;">
+                        We've sent a verification code to <span id="verifyEmailAddress" style="font-weight: 600;"></span>
+                    </p>
+                    <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 30px;">
+                        <input type="text" maxlength="1" class="verify-code" style="width: 50px; height: 60px; text-align: center; font-size: 24px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                        <input type="text" maxlength="1" class="verify-code" style="width: 50px; height: 60px; text-align: center; font-size: 24px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                        <input type="text" maxlength="1" class="verify-code" style="width: 50px; height: 60px; text-align: center; font-size: 24px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                        <input type="text" maxlength="1" class="verify-code" style="width: 50px; height: 60px; text-align: center; font-size: 24px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                        <input type="text" maxlength="1" class="verify-code" style="width: 50px; height: 60px; text-align: center; font-size: 24px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                        <input type="text" maxlength="1" class="verify-code" style="width: 50px; height: 60px; text-align: center; font-size: 24px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                    </div>
+                    <button id="verifyEmailBtn" class="btn btn-primary" style="width: 100%; margin-bottom: 20px;">Verify Email</button>
+                    <p style="text-align: center; color: var(--gray);">
+                        Didn't receive the code? <a href="#" id="resendCodeLink" style="color: var(--primary); text-decoration: none; font-weight: 600;">Resend Code</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2FA Setup Page -->
+        <div id="twoFactorSetupPage" class="page">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <h2 style="text-align: center; margin-bottom: 20px;">Two-Factor Authentication</h2>
+                    <p style="text-align: center; color: var(--gray); margin-bottom: 30px;">
+                        Scan this QR code with your authenticator app
+                    </p>
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <div id="qrcode" style="display: inline-block; padding: 20px; background: white; border-radius: 10px; box-shadow: var(--shadow);"></div>
+                    </div>
+                    <div style="margin-bottom: 30px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Enter 6-digit code</label>
+                        <input type="text" id="twoFactorCode" placeholder="123456" maxlength="6" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; text-align: center; letter-spacing: 10px; font-size: 20px;">
+                    </div>
+                    <button id="verify2FABtn" class="btn btn-primary" style="width: 100%;">Verify & Enable 2FA</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboardPage" class="page">
+            <div class="dashboard-container">
+                <div class="sidebar">
+                    <div class="logo" style="margin-bottom: 30px;">
+                        <i class="fas fa-chart-line"></i>
+                        <h1>CryptoSense</h1>
+                    </div>
+                    
+                    <div style="margin-bottom: 30px;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                            <div id="userAvatar" style="width: 50px; height: 50px; background: var(--gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; font-weight: 600;"></div>
+                            <div>
+                                <h3 id="userName" style="color: white;"></h3>
+                                <p style="color: #94a3b8; font-size: 14px;">Verified Investor</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <nav style="display: flex; flex-direction: column; gap: 10px;">
+                        <a href="#" class="sidebar-link active" data-page="overview">
+                            <i class="fas fa-home"></i> Overview
+                        </a>
+                        <a href="#" class="sidebar-link" data-page="portfolio">
+                            <i class="fas fa-chart-pie"></i> Portfolio
+                        </a>
+                        <a href="#" class="sidebar-link" data-page="deposit">
+                            <i class="fas fa-plus-circle"></i> Make Deposit
+                        </a>
+                        <a href="#" class="sidebar-link" data-page="withdraw">
+                            <i class="fas fa-money-bill-wave"></i> Withdraw
+                        </a>
+                        <a href="#" class="sidebar-link" data-page="transactions">
+                            <i class="fas fa-history"></i> Transactions
+                        </a>
+                        <a href="#" class="sidebar-link" data-page="profile">
+                            <i class="fas fa-user"></i> Profile
+                        </a>
+                        <a href="#" class="sidebar-link" id="adminLink" style="display: none;">
+                            <i class="fas fa-user-shield"></i> Admin Panel
+                        </a>
+                        <a href="#" class="sidebar-link" id="logoutBtn">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </nav>
+                </div>
+                
+                <div class="main-content">
+                    <!-- Overview Section -->
+                    <div id="overviewSection" class="dashboard-section">
+                        <h2 style="margin-bottom: 30px;">Investment Dashboard</h2>
+                        
+                        <!-- Stats Cards -->
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <h3 style="color: var(--gray); margin-bottom: 10px;">Total Balance</h3>
+                                <div style="font-size: 32px; font-weight: 700; color: var(--dark); margin-bottom: 5px;">$<span id="totalBalance">0.00</span></div>
+                                <div style="color: var(--success); font-weight: 600;">+12.5% this month</div>
+                            </div>
+                            <div class="stat-card">
+                                <h3 style="color: var(--gray); margin-bottom: 10px;">Active Investments</h3>
+                                <div style="font-size: 32px; font-weight: 700; color: var(--dark); margin-bottom: 5px;" id="activeInvestments">0</div>
+                                <div style="color: var(--success); font-weight: 600;">All Performing</div>
+                            </div>
+                            <div class="stat-card">
+                                <h3 style="color: var(--gray); margin-bottom: 10px;">30-Day Returns</h3>
+                                <div style="font-size: 32px; font-weight: 700; color: var(--dark); margin-bottom: 5px;">$<span id="monthlyReturns">0.00</span></div>
+                                <div style="color: var(--success); font-weight: 600;">+16.8%</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Chart -->
+                        <div class="chart-container">
+                            <h3 style="margin-bottom: 20px;">Portfolio Performance</h3>
+                            <canvas id="portfolioChart"></canvas>
+                        </div>
+                        
+                        <!-- Recent Activity -->
+                        <div style="background: white; padding: 25px; border-radius: 15px; box-shadow: var(--shadow);">
+                            <h3 style="margin-bottom: 20px;">Recent Activity</h3>
+                            <div id="recentActivity"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Profile Section -->
+                    <div id="profileSection" class="dashboard-section" style="display: none;">
+                        <h2 style="margin-bottom: 30px;">My Profile</h2>
+                        <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: var(--shadow);">
+                            <div style="display: flex; gap: 30px; margin-bottom: 40px;">
+                                <div>
+                                    <div id="profileAvatar" style="width: 100px; height: 100px; background: var(--gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 36px; font-weight: 600;"></div>
+                                    <input type="file" id="avatarUpload" accept="image/*" style="display: none;">
+                                    <button id="changeAvatarBtn" class="btn btn-outline" style="margin-top: 15px; width: 100%;">
+                                        <i class="fas fa-camera"></i> Change Photo
+                                    </button>
+                                </div>
+                                <div style="flex: 1;">
+                                    <h3 style="margin-bottom: 20px;">Account Information</h3>
+                                    <form id="profileForm">
+                                        <div style="margin-bottom: 20px;">
+                                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Full Name</label>
+                                            <input type="text" id="profileName" class="form-control" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                        </div>
+                                        <div style="margin-bottom: 20px;">
+                                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Email Address</label>
+                                            <input type="email" id="profileEmail" class="form-control" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    </form>
+                                </div>
+                            </div>
+                            
+                            <!-- Security Settings -->
+                            <h3 style="margin-bottom: 20px;">Security Settings</h3>
+                            <div style="margin-bottom: 30px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #f8fafc; border-radius: 10px; margin-bottom: 10px;">
+                                    <div>
+                                        <h4 style="margin-bottom: 5px;">Two-Factor Authentication</h4>
+                                        <p style="color: var(--gray); font-size: 14px;">Add an extra layer of security to your account</p>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="twoFactorToggle">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #f8fafc; border-radius: 10px;">
+                                    <div>
+                                        <h4 style="margin-bottom: 5px;">Change Password</h4>
+                                        <p style="color: var(--gray); font-size: 14px;">Update your account password</p>
+                                    </div>
+                                    <button id="changePasswordBtn" class="btn btn-outline">Change</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Admin Panel -->
+                    <div id="adminSection" class="dashboard-section" style="display: none;">
+                        <h2 style="margin-bottom: 30px;">Admin Panel</h2>
+                        <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: var(--shadow);">
+                            <h3 style="margin-bottom: 20px;">User Management</h3>
+                            <div id="usersList"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="twoFactorModal" class="modal">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 20px;">Two-Factor Authentication</h3>
+            <p style="margin-bottom: 20px; color: var(--gray);">Enter the 6-digit code from your authenticator app:</p>
+            <input type="text" id="twoFactorInput" placeholder="123456" maxlength="6" style="width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; text-align: center; letter-spacing: 10px; font-size: 24px; margin-bottom: 20px;">
+            <button id="submit2FABtn" class="btn btn-primary" style="width: 100%;">Verify</button>
+        </div>
+    </div>
+
+    <div id="depositModal" class="modal">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 20px;">Make a Deposit</h3>
+            <form id="depositForm">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Amount (USD)</label>
+                    <input type="number" id="depositAmount" min="100" step="0.01" placeholder="1000.00" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Cryptocurrency</label>
+                    <select id="depositCrypto" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                        <option value="BTC">Bitcoin (BTC)</option>
+                        <option value="ETH">Ethereum (ETH)</option>
+                        <option value="USDT">Tether (USDT)</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Generate Wallet Address</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    
+    <!-- Frontend JavaScript -->
+    <script>
+        // ===== CONFIGURATION =====
+        const API_BASE_URL = 'http://localhost:3000/api';
+        let currentUser = null;
+        let authToken = localStorage.getItem('token');
+        let chartInstance = null;
+
+        // ===== API SERVICE =====
+        const api = {
+            async request(endpoint, method = 'GET', data = null, requiresAuth = true) {
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+
+                if (requiresAuth && authToken) {
+                    headers['Authorization'] = `Bearer ${authToken}`;
+                }
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                        method,
+                        headers,
+                        body: data ? JSON.stringify(data) : null
+                    });
+
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(result.message || 'Request failed');
+                    }
+
+                    return result;
+                } catch (error) {
+                    console.error('API Error:', error);
+                    showError(error.message);
+                    throw error;
+                }
+            },
+
+            // Auth endpoints
+            async signup(data) { return this.request('/auth/signup', 'POST', data, false); },
+            async login(data) { return this.request('/auth/login', 'POST', data, false); },
+            async verifyEmail(data) { return this.request('/auth/verify-email', 'POST', data, false); },
+            async resendVerification(email) { return this.request('/auth/resend-verification', 'POST', { email }, false); },
+            async forgotPassword(email) { return this.request('/auth/forgot-password', 'POST', { email }, false); },
+            async resetPassword(data) { return this.request('/auth/reset-password', 'POST', data, false); },
+            async setup2FA() { return this.request('/auth/2fa/setup', 'POST'); },
+            async verify2FA(code) { return this.request('/auth/2fa/verify', 'POST', { code }); },
+            async verify2FALogin(code) { return this.request('/auth/2fa/login', 'POST', { code }); },
+
+            // User endpoints
+            async getProfile() { return this.request('/user/profile'); },
+            async updateProfile(data) { return this.request('/user/profile', 'PUT', data); },
+            async updateAvatar(file) {
+                const formData = new FormData();
+                formData.append('avatar', file);
+                
+                const response = await fetch(`${API_BASE_URL}/user/avatar`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: formData
+                });
+                
+                return response.json();
+            },
+            async changePassword(data) { return this.request('/user/change-password', 'POST', data); },
+            async getBalance() { return this.request('/user/balance'); },
+
+            // Investment endpoints
+            async getInvestments() { return this.request('/investments'); },
+            async getPortfolioAnalytics() { return this.request('/investments/analytics'); },
+
+            // Deposit endpoints
+            async createDeposit(data) { return this.request('/deposits', 'POST', data); },
+
+            // Admin endpoints
+            async getUsers() { return this.request('/admin/users'); },
+            async updateUser(id, data) { return this.request(`/admin/users/${id}`, 'PUT', data); },
+            async getPlatformStats() { return this.request('/admin/stats'); },
+
+            // Crypto prices
+            async getCryptoPrices() { 
+                // For demo, return mock data. In production, connect to real API
+                return {
+                    BTC: 65000,
+                    ETH: 3500,
+                    USDT: 1.00
+                };
+            }
+        };
+
+        // ===== UI UTILITIES =====
+        function showError(message) {
+            Toastify({
+                text: message,
+                duration: 3000,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#ef4444"
+            }).showToast();
+        }
+
+        function showSuccess(message) {
+            Toastify({
+                text: message,
+                duration: 3000,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#10b981"
+            }).showToast();
+        }
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        function updateUserUI(user) {
+            if (user) {
+                // Update user name
+                const nameElements = document.querySelectorAll('#userName, #profileName');
+                nameElements.forEach(el => {
+                    if (el.id === 'profileName') {
+                        el.value = user.name;
+                    } else {
+                        el.textContent = user.name;
+                    }
+                });
+
+                // Update email
+                document.getElementById('profileEmail').value = user.email;
+                document.getElementById('verifyEmailAddress').textContent = user.email;
+
+                // Update avatar
+                const avatarElements = document.querySelectorAll('#userAvatar, #profileAvatar');
+                avatarElements.forEach(el => {
+                    if (user.avatar) {
+                        el.innerHTML = `<img src="${user.avatar}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+                    } else {
+                        el.textContent = user.name.charAt(0).toUpperCase();
+                    }
+                });
+
+                // Show admin link if user is admin
+                if (user.role === 'admin') {
+                    document.getElementById('adminLink').style.display = 'block';
+                }
+            }
+        }
+
+        async function loadDashboardData() {
+            try {
+                // Load balance
+                const balanceData = await api.getBalance();
+                document.getElementById('totalBalance').textContent = balanceData.balance.toFixed(2);
+
+                // Load investments
+                const investments = await api.getInvestments();
+                document.getElementById('activeInvestments').textContent = investments.length;
+
+                // Load portfolio analytics
+                const analytics = await api.getPortfolioAnalytics();
+                document.getElementById('monthlyReturns').textContent = analytics.monthlyReturns?.toFixed(2) || '0.00';
+
+                // Create chart
+                createPortfolioChart(analytics);
+
+                // Load recent activity
+                loadRecentActivity(investments);
+
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        function createPortfolioChart(analytics) {
+            const ctx = document.getElementById('portfolioChart').getContext('2d');
+            
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: analytics.labels || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Portfolio Value',
+                        data: analytics.data || [10000, 12000, 11000, 15000, 18000, 20000],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function loadRecentActivity(investments) {
+            const container = document.getElementById('recentActivity');
+            if (!investments.length) {
+                container.innerHTML = '<p>No recent activity</p>';
+                return;
+            }
+
+            container.innerHTML = investments.slice(0, 5).map(inv => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #e2e8f0;">
+                    <div>
+                        <strong>${inv.cryptocurrency}</strong>
+                        <div style="color: var(--gray); font-size: 14px;">${new Date(inv.created_at).toLocaleDateString()}</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-weight: 600;">$${inv.amount_invested}</div>
+                        <div style="color: var(--success); font-size: 14px;">+$${inv.current_value - inv.amount_invested}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ===== AUTHENTICATION =====
+        async function handleSignup(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+
+            try {
+                const result = await api.signup({ name, email, password });
+                showSuccess('Account created! Please verify your email.');
+                showPage('verifyEmailPage');
+            } catch (error) {
+                // Error handled by API service
+            }
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const result = await api.login({ email, password });
+                
+                if (result.requires2FA) {
+                    // Show 2FA modal
+                    show2FAModal();
+                    // Store temporary token
+                    localStorage.setItem('tempToken', result.tempToken);
+                } else {
+                    // Complete login
+                    completeLogin(result);
+                }
+            } catch (error) {
+                // Error handled by API service
+            }
+        }
+
+        async function completeLogin(result) {
+            authToken = result.token;
+            localStorage.setItem('token', authToken);
+            currentUser = result.user;
+            
+            updateUserUI(currentUser);
+            showPage('dashboardPage');
+            await loadDashboardData();
+            
+            showSuccess('Login successful!');
+        }
+
+        async function handleEmailVerification() {
+            const codes = Array.from(document.querySelectorAll('.verify-code'));
+            const code = codes.map(input => input.value).join('');
+            
+            if (code.length !== 6) {
+                showError('Please enter the 6-digit code');
+                return;
+            }
+
+            try {
+                const result = await api.verifyEmail({ code });
+                showSuccess('Email verified successfully!');
+                
+                // Check if 2FA setup is required
+                if (result.requires2FASetup) {
+                    showPage('twoFactorSetupPage');
+                    await setup2FA();
+                } else {
+                    showPage('loginPage');
+                }
+            } catch (error) {
+                // Error handled by API service
+            }
+        }
+
+        async function setup2FA() {
+            try {
+                const result = await api.setup2FA();
+                
+                // Generate QR code
+                QRCode.toCanvas(document.getElementById('qrcode'), result.qrCode, {
+                    width: 200,
+                    height: 200
+                });
+            } catch (error) {
+                showError('Failed to setup 2FA');
+            }
+        }
+
+        async function verify2FA() {
+            const code = document.getElementById('twoFactorCode').value;
+            
+            if (code.length !== 6) {
+                showError('Please enter the 6-digit code');
+                return;
+            }
+
+            try {
+                await api.verify2FA(code);
+                showSuccess('2FA enabled successfully!');
+                showPage('loginPage');
+            } catch (error) {
+                // Error handled by API service
+            }
+        }
+
+        function show2FAModal() {
+            document.getElementById('twoFactorModal').classList.add('active');
+        }
+
+        async function verify2FALogin() {
+            const code = document.getElementById('twoFactorInput').value;
+            
+            if (code.length !== 6) {
+                showError('Please enter the 6-digit code');
+                return;
+            }
+
+            try {
+                const tempToken = localStorage.getItem('tempToken');
+                const result = await api.verify2FALogin({ code, tempToken });
+                
+                localStorage.removeItem('tempToken');
+                document.getElementById('twoFactorModal').classList.remove('active');
+                completeLogin(result);
+            } catch (error) {
+                // Error handled by API service
+            }
+        }
+
+        async function handleForgotPassword() {
+            const email = prompt('Enter your email address:');
+            if (!email) return;
+
+            try {
+                await api.forgotPassword(email);
+                showSuccess('Password reset instructions sent to your email');
+            } catch (error) {
+                // Error handled by API service
+            }
+        }
+
+        // ===== DASHBOARD FUNCTIONS =====
+        function showDashboardSection(sectionId) {
+            document.querySelectorAll('.dashboard-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            document.getElementById(sectionId).style.display = 'block';
+            
+            // Update active sidebar link
+            document.querySelectorAll('.sidebar-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`[data-page="${sectionId.replace('Section', '').toLowerCase()}"]`).classList.add('active');
+        }
+
+        async function updateProfile(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('profileName').value;
+            const email = document.getElementById('profileEmail').value;
+
+            try {
+                await api.updateProfile({ name, email });
+                currentUser.name = name;
+                currentUser.email = email;
+                updateUserUI(currentUser);
+                showSuccess('Profile updated successfully');
+            } catch (error) {
+                // Error handled by API service
+            }
+        }
+
+        async function changeAvatar() {
+            const fileInput = document.getElementById('avatarUpload');
+            fileInput.click();
+            
+            fileInput.onchange = async () => {
+                const file = fileInput.files[0];
+                if (!file) return;
+                
+                try {
+                    const result = await api.updateAvatar(file);
+                    currentUser.avatar = result.avatarUrl;
+                    updateUserUI(currentUser);
+                    showSuccess('Avatar updated successfully');
+                } catch (error) {
+                    showError('Failed to update avatar');
+                }
+            };
+        }
+
+        async function handleChangePassword() {
+            const { value: formValues } = await Swal.fire({
+                title: 'Change Password',
+                html: `
+                    <input id="currentPassword" type="password" placeholder="Current Password" class="swal2-input">
+                    <input id="newPassword" type="password" placeholder="New Password" class="swal2-input">
+                    <input id="confirmPassword" type="password" placeholder="Confirm New Password" class="swal2-input">
+                `,
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonText: 'Change Password',
+                preConfirm: () => {
+                    return {
+                        currentPassword: document.getElementById('currentPassword').value,
+                        newPassword: document.getElementById('newPassword').value,
+                        confirmPassword: document.getElementById('confirmPassword').value
+                    };
+                }
+            });
+
+            if (formValues) {
+                if (formValues.newPassword !== formValues.confirmPassword) {
+                    showError('Passwords do not match');
+                    return;
+                }
+
+                try {
+                    await api.changePassword({
+                        currentPassword: formValues.currentPassword,
+                        newPassword: formValues.newPassword
+                    });
+                    showSuccess('Password changed successfully');
+                } catch (error) {
+                    // Error handled by API service
+                }
+            }
+        }
+
+        async function handleDeposit(e) {
+            e.preventDefault();
+            
+            const amount = parseFloat(document.getElementById('depositAmount').value);
+            const cryptocurrency = document.getElementById('depositCrypto').value;
+
+            if (amount < 100) {
+                showError('Minimum deposit is $100');
+                return;
+            }
+
+            try {
+                // Generate wallet address (in production, this would come from backend)
+                const walletAddress = '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa';
+                
+                await api.createDeposit({
+                    amount,
+                    cryptocurrency,
+                    wallet_address: walletAddress
+                });
+
+                // Update balance
+                const balanceData = await api.getBalance();
+                document.getElementById('totalBalance').textContent = balanceData.balance.toFixed(2);
+                
+                // Show success message with wallet address
+                Swal.fire({
+                    title: 'Deposit Initiated!',
+                    html: `
+                        <p>Send $${amount} worth of ${cryptocurrency} to:</p>
+                        <p style="font-family: monospace; background: #f8fafc; padding: 10px; border-radius: 5px;">${walletAddress}</p>
+                        <p style="color: var(--gray); font-size: 14px; margin-top: 20px;">Your account will be credited after 3 confirmations.</p>
+                    `,
+                    icon: 'success'
+                });
+
+                document.getElementById('depositModal').classList.remove('active');
+            } catch (error) {
+                // Error handled by API service
+            }
+        }
+
+        // ===== ADMIN FUNCTIONS =====
+        async function loadAdminPanel() {
+            try {
+                const users = await api.getUsers();
+                const stats = await api.getPlatformStats();
+                
+                document.getElementById('usersList').innerHTML = `
+                    <div style="margin-bottom: 20px;">
+                        <h4>Platform Statistics</h4>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 15px;">
+                            <div style="background: #f8fafc; padding: 15px; border-radius: 10px;">
+                                <div style="font-size: 24px; font-weight: 700;">${stats.totalUsers}</div>
+                                <div style="color: var(--gray); font-size: 14px;">Total Users</div>
+                            </div>
+                            <div style="background: #f8fafc; padding: 15px; border-radius: 10px;">
+                                <div style="font-size: 24px; font-weight: 700;">$${stats.totalDeposits.toLocaleString()}</div>
+                                <div style="color: var(--gray); font-size: 14px;">Total Deposits</div>
+                            </div>
+                            <div style="background: #f8fafc; padding: 15px; border-radius: 10px;">
+                                <div style="font-size: 24px; font-weight: 700;">$${stats.totalBalance.toLocaleString()}</div>
+                                <div style="color: var(--gray); font-size: 14px;">Platform Balance</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h4 style="margin-bottom: 15px;">User List</h4>
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: #f8fafc;">
+                                    <th style="padding: 12px; text-align: left;">Name</th>
+                                    <th style="padding: 12px; text-align: left;">Email</th>
+                                    <th style="padding: 12px; text-align: left;">Balance</th>
+                                    <th style="padding: 12px; text-align: left;">Role</th>
+                                    <th style="padding: 12px; text-align: left;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${users.map(user => `
+                                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                                        <td style="padding: 12px;">${user.name}</td>
+                                        <td style="padding: 12px;">${user.email}</td>
+                                        <td style="padding: 12px;">$${user.balance?.toFixed(2) || '0.00'}</td>
+                                        <td style="padding: 12px;">
+                                            <span style="padding: 4px 8px; background: ${user.role === 'admin' ? '#dc2626' : '#059669'}; color: white; border-radius: 4px; font-size: 12px;">
+                                                ${user.role}
+                                            </span>
+                                        </td>
+                                        <td style="padding: 12px;">
+                                            <button onclick="editUser('${user.id}')" class="btn btn-sm" style="padding: 6px 12px; font-size: 12px;">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading admin panel:', error);
+            }
+        }
+
+        async function editUser(userId) {
+            const { value: formValues } = await Swal.fire({
+                title: 'Edit User',
+                html: `
+                    <input id="editName" placeholder="Name" class="swal2-input">
+                    <input id="editBalance" type="number" placeholder="Balance" class="swal2-input" step="0.01">
+                    <select id="editRole" class="swal2-input">
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                `,
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonText: 'Save Changes',
+                preConfirm: () => {
+                    return {
+                        name: document.getElementById('editName').value,
+                        balance: document.getElementById('editBalance').value,
+                        role: document.getElementById('editRole').value
+                    };
+                }
+            });
+
+            if (formValues) {
+                try {
+                    await api.updateUser(userId, formValues);
+                    showSuccess('User updated successfully');
+                    loadAdminPanel();
+                } catch (error) {
+                    showError('Failed to update user');
+                }
+            }
+        }
+
+        // ===== EVENT LISTENERS =====
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check if user is logged in
+            if (authToken) {
+                try {
+                    const result = await api.getProfile();
+                    currentUser = result.user;
+                    updateUserUI(currentUser);
+                    showPage('dashboardPage');
+                    await loadDashboardData();
+                } catch (error) {
+                    localStorage.removeItem('token');
+                    authToken = null;
+                    showPage('landingPage');
+                }
+            }
+
+            // Setup verification code input auto-focus
+            const verifyInputs = document.querySelectorAll('.verify-code');
+            verifyInputs.forEach((input, index) => {
+                input.addEventListener('input', (e) => {
+                    if (e.target.value.length === 1 && index < verifyInputs.length - 1) {
+                        verifyInputs[index + 1].focus();
+                    }
+                });
+                
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                        verifyInputs[index - 1].focus();
+                    }
+                });
+            });
+        });
+
+        // Form submissions
+        document.getElementById('signupForm')?.addEventListener('submit', handleSignup);
+        document.getElementById('loginForm')?.addEventListener('submit', handleLogin);
+        document.getElementById('verifyEmailBtn')?.addEventListener('click', handleEmailVerification);
+        document.getElementById('verify2FABtn')?.addEventListener('click', verify2FA);
+        document.getElementById('submit2FABtn')?.addEventListener('click', verify2FALogin);
+        document.getElementById('profileForm')?.addEventListener('submit', updateProfile);
+        document.getElementById('depositForm')?.addEventListener('submit', handleDeposit);
+
+        // Navigation
+        document.getElementById('getStartedBtn')?.addEventListener('click', () => showPage('signupPage'));
+        document.getElementById('loginNav')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            showPage('loginPage');
+        });
+        document.getElementById('signupNav')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            showPage('signupPage');
+        });
+        document.getElementById('toLoginLink')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            showPage('loginPage');
+        });
+        document.getElementById('toSignupLink')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            showPage('signupPage');
+        });
+        document.getElementById('forgotPasswordLink')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            handleForgotPassword();
+        });
+        document.getElementById('resendCodeLink')?.addEventListener('click', async (e) => {
+            e.preventDefault();
+            if (currentUser?.email) {
+                await api.resendVerification(currentUser.email);
+                showSuccess('Verification code resent!');
+            }
+        });
+
+        // Dashboard navigation
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            if (link.dataset.page) {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const sectionId = `${link.dataset.page}Section`;
+                    if (sectionId === 'adminSection') {
+                        loadAdminPanel();
+                    }
+                    showDashboardSection(sectionId);
+                });
+            }
+        });
+
+        // Profile actions
+        document.getElementById('changeAvatarBtn')?.addEventListener('click', changeAvatar);
+        document.getElementById('changePasswordBtn')?.addEventListener('click', handleChangePassword);
+
+        // Logout
+        document.getElementById('logoutBtn')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('token');
+            authToken = null;
+            currentUser = null;
+            showPage('landingPage');
+            showSuccess('Logged out successfully');
+        });
+
+        // Modal triggers
+        document.querySelector('[data-page="deposit"]')?.addEventListener('click', () => {
+            document.getElementById('depositModal').classList.add('active');
+        });
+
+        // Close modals when clicking outside
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+
+        // 2FA toggle
+        document.getElementById('twoFactorToggle')?.addEventListener('change', async function() {
+            if (this.checked) {
+                showPage('twoFactorSetupPage');
+                await setup2FA();
+            } else {
+                // Disable 2FA
+                try {
+                    await api.request('/auth/2fa/disable', 'POST');
+                    showSuccess('2FA disabled');
+                } catch (error) {
+                    showError('Failed to disable 2FA');
+                    this.checked = true;
+                }
+            }
+        });
+
+        // Admin link
+        document.getElementById('adminLink')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            showDashboardSection('adminSection');
+            loadAdminPanel();
+        });
+    </script>
+</body>
+</html>
